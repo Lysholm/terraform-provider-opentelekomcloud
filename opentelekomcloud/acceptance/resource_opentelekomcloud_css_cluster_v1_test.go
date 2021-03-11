@@ -29,7 +29,7 @@ func TestAccCssClusterV1_basic(t *testing.T) {
 	})
 }
 
-func testAccCssClusterV1_basic(val string) string {
+func testAccCssClusterV1_basic(name string) string {
 	return fmt.Sprintf(`
 resource "opentelekomcloud_networking_secgroup_v2" "secgroup" {
   name = "terraform_test_security_group%[1]s"
@@ -38,22 +38,26 @@ resource "opentelekomcloud_networking_secgroup_v2" "secgroup" {
 
 resource "opentelekomcloud_css_cluster_v1" "cluster" {
   expect_node_num = 1
-  name = "terraform_test_cluster%[1]s"
+  name            = "terraform_test_cluster%[1]s"
   node_config {
-    flavor = "css.medium.8"
+    flavor = "css.2xlarge.4"
     network_info {
       security_group_id = opentelekomcloud_networking_secgroup_v2.secgroup.id
-      network_id = "%s"
-      vpc_id = "%s"
+      network_id        = "%s"
+      vpc_id            = "%s"
     }
     volume {
       volume_type = "COMMON"
-      size = 40
+      size        = 100
     }
     availability_zone = "%s"
   }
+
+  enable_https     = true
+  enable_authority = true
+  admin_pass       = "QwertyUI!"
 }
-`, val, OS_NETWORK_ID, OS_VPC_ID, OS_AVAILABILITY_ZONE)
+`, name, OS_NETWORK_ID, OS_VPC_ID, OS_AVAILABILITY_ZONE)
 }
 
 func testAccCheckCssClusterV1Destroy(s *terraform.State) error {
